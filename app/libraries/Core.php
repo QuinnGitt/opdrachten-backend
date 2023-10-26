@@ -9,7 +9,7 @@
     public function __construct()
     {
         $url = $this->getURL();
-        // var_dump($url);
+        //  var_dump($url);exit();
         if (file_exists('../app/controllers/' . ucwords($url[0]) . '.php')) {
             $this->currentController = ucwords($url[0]);
             // echo $this->currentController;
@@ -41,6 +41,7 @@
 
     public function getURL()
     {
+        // var_dump($_GET['url']);exit();
         if (isset($_GET['url'])) {
             // We halen de forward slash van de url-tekst af
             $url = rtrim($_GET['url'], '/');

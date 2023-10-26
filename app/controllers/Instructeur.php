@@ -11,6 +11,7 @@ class Instructeur extends BaseController
 
     public function overzichtInstructeur()
     {
+        echo "Test";
         $result = $this->instructeurModel->getInstructeurs();
 
         $allVehicles = "<a href='" . URLROOT . "/instructeur/alleVoertuigen'/>alle voertuigen</a>";
@@ -323,5 +324,10 @@ class Instructeur extends BaseController
     function deleteMessage()
     {
         $this->view('Instructeur/deleteMessage');
+    }
+
+    public function rra()
+    {
+        echo "Testerdetest";
     }
 }
