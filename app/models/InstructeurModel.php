@@ -18,6 +18,7 @@ class InstructeurModel
                       ,Mobiel
                       ,DatumInDienst
                       ,AantalSterren
+                      ,IsActief
                 FROM  Instructeur
                 ORDER BY AantalSterren DESC";
 
@@ -47,6 +48,8 @@ class InstructeurModel
                 ON          VOIN.VoertuigId = VOER.Id
                 
                 WHERE       VOIN.InstructeurId = $Id
+
+                AND         VOIN.IsActief = 1
                 
                 ORDER BY    TYVO.RijbewijsCategorie asc";
 
@@ -132,6 +135,7 @@ class InstructeurModel
                 FROM Voertuig V
                 LEFT JOIN VoertuigInstructeur VI
                 ON V.Id = VI.VoertuigId
+                AND VI.IsActief = 1
                 INNER JOIN TypeVoertuig TV
                 ON TV.Id = V.TypeVoertuigId
                 WHERE InstructeurId IS NULL";
@@ -215,6 +219,43 @@ class InstructeurModel
         DELETE FROM Voertuig
         WHERE Id = $voertuigId;";
 
+        $this->db->query($sql);
+        return $this->db->resultSet();
+    }
+
+    function deleteInstructeur($instructeurId) 
+    {
+        try {
+            $sql = "DELETE FROM voertuiginstructeur
+            WHERE InstructeurId = $instructeurId";
+            $this->db->query($sql);
+            $this->db->resultSet();
+
+            $sql = "DELETE FROM instructeur
+            WHERE Id = $instructeurId";
+            $this->db->query($sql);
+            $this->db->resultSet();
+        } catch (PDOException $e) {
+            return 0;
+        }
+        return 1;
+    }
+
+    function updateNietActief($instructeurId)
+    {
+        $sql = "UPDATE instructeur
+                SET IsActief = 0,
+                    DatumGewijzigd = SYSDATE(6)
+                WHERE Id = $instructeurId";
+        $this->db->query($sql);
+        return $this->db->resultSet();
+    }
+    function updateIsActief($instructeurId)
+    {
+        $sql = "UPDATE instructeur
+                SET IsActief = 1,
+                    DatumGewijzigd = SYSDATE(6)
+                WHERE Id = $instructeurId";
         $this->db->query($sql);
         return $this->db->resultSet();
     }

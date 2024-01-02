@@ -8,10 +8,9 @@ class Instructeur extends BaseController
     {
         $this->instructeurModel = $this->model('InstructeurModel');
     }
-
-    public function overzichtInstructeur()
-    {
-        echo "Test";
+ 
+    public function overzichtInstructeur () {
+        // echo "Test";
         $result = $this->instructeurModel->getInstructeurs();
 
         $allVehicles = "<a href='" . URLROOT . "/instructeur/alleVoertuigen'/>alle voertuigen</a>";
@@ -23,10 +22,24 @@ class Instructeur extends BaseController
 
             $aantalInstructeurs = sizeof($instructeurs);
 
-
+            $instructeurVoonaam = ($instructeur->Voornaam);
+            
             $date = date_create($instructeur->DatumInDienst);
             $formatted_date = date_format($date, 'd-m-Y');
 
+            $isactief = ($instructeur->IsActief);
+
+            if ($isactief == 0) {
+                $status = "
+                    <a href='" . URLROOT . "/instructeur/IsActief/$instructeur->Id'>
+                    <i class='bi bi-hand-thumbs-up-fill'></i>                        </a>
+                    </a>";
+            } else {
+                $status = "
+                <a href='" . URLROOT . "/instructeur/nietActief/$instructeur->Id'>
+                <i class='bi bi-bandaid'></i>
+                </a>";
+            }
 
 
             $rows .= "<tr>
@@ -43,7 +56,15 @@ class Instructeur extends BaseController
                                 <i class='bi bi-car-front'></i>
                             </a>
                         </td>
-                       
+
+                        <td>$status</td>
+                        
+                        <td>
+                        <a href='" . URLROOT . "/instructeur/deleteInstructeur/$instructeur->Id'>
+                        <i class='bi bi-trash3'></i>
+                        </a>
+                    </td>
+                   
 
                       </tr>";
         }
@@ -52,7 +73,8 @@ class Instructeur extends BaseController
             'title' => 'Instructeurs in dienst',
             'aantalInstructeurs' => $aantalInstructeurs,
             'rows' => $rows,
-            'allVehicles' => $allVehicles
+            'allVehicles' => $allVehicles,
+            'IsActief' => isset($GLOBALS['Actief']) ? "$instructeurVoonaam is ziek/met verlof gemeld" : null,
         ];
 
         $this->view('Instructeur/overzichtinstructeur', $data);
@@ -122,7 +144,7 @@ class Instructeur extends BaseController
         ];
 
         if (isset($GLOBALS['deleted'])) {
-            header('Refresh:3; url=/Instructeur/overzichtVoertuigen/' . $instructeurId);
+            header('Refresh:0; url=/Instructeur/overzichtVoertuigen/' . $instructeurId);
         }
 
         $this->view('Instructeur/overzichtVoertuigen', $data);
@@ -225,7 +247,7 @@ class Instructeur extends BaseController
         ];
 
         if (isset($GLOBALS['deleted'])) {
-            header('Refresh:3; url=/Instructeur/overzichtNietToegewezenVoertuigen/' . $instructeurId);
+            header('Refresh:0; url=/Instructeur/overzichtNietToegewezenVoertuigen/' . $instructeurId);
         }
 
         $this->view('Instructeur/overzichtNietToegewezenVoertuig', $data);
@@ -318,7 +340,7 @@ class Instructeur extends BaseController
 
         $this->view('Instructeur/deleteMessage');
         
-        header('Refresh:3; url=/Instructeur/alleVoertuigen');
+        header('Refresh:0; url=/Instructeur/alleVoertuigen');
     }
 
     function deleteMessage()
@@ -329,5 +351,27 @@ class Instructeur extends BaseController
     public function rra()
     {
         echo "Testerdetest";
+    }
+
+    public function deleteInstructeur($instructeurId) {
+        $this->instructeurModel->deleteInstructeur($instructeurId);
+         header('Refresh:0; url=/Instructeur/overzichtInstructeur');
+    }
+
+    function nietActief($instructeurId)
+    {
+        $this->instructeurModel->updateNietActief($instructeurId);
+        header('Refresh:0; url=/Instructeur/overzichtInstructeur');
+    }
+
+    function IsActief($instructeurId)
+    {
+        $GLOBALS['IsActief'] = true;
+
+        $this->instructeurModel->updateIsActief($instructeurId);
+        $test = $this->instructeurModel->getInstructeurById($instructeurId);
+        var_dump($test);
+        echo "Hoi" . $test->Voornaam . $test->Tussenvoegsel . $test->Achternaam;
+        header('Refresh:0; url=/Instructeur/overzichtInstructeur');
     }
 }
